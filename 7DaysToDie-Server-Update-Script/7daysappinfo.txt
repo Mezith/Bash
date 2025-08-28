@@ -1,0 +1,5 @@
+@sSteamCmdForcePlatformType linux 
+login anonymous
+app_info_update 1
+app_info_print 294420 
+quit

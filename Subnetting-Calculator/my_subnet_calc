@@ -1,0 +1,113 @@
+#!/bin/bash
+
+# ------------------------------
+# Helpers
+# ------------------------------
+
+dec2bin() {
+    local n=$1 bin=""
+    for i in {7..0}; do (( (n & (1 << i)) != 0 )) && bin+="1" || bin+="0"; done
+    echo "$bin"
+}
+
+bin2dec() {
+    echo $((2#$1))
+}
+
+cidr2mask() {
+    local cidr=$1 mask=()
+    for i in {0..3}; do
+        if (( cidr >= 8 )); then
+            mask[i]=255
+            cidr=$((cidr-8))
+        else
+            mask[i]=$(( 256 - 2**(8-cidr) ))
+            cidr=0
+        fi
+    done
+    echo "${mask[@]}"
+}
+
+ip2array() {
+    IFS='.' read -r -a arr <<< "$1"
+    echo "${arr[@]}"
+}
+
+and_octets() {
+    local a=("${!1}") b=("${!2}") result=()
+    for i in {0..3}; do
+        result[i]=$(( a[i] & b[i] ))
+    done
+    echo "${result[@]}"
+}
+
+or_octets() {
+    local a=("${!1}") b=("${!2}") result=()
+    for i in {0..3}; do
+        result[i]=$(( a[i] | b[i] ))
+    done
+    echo "${result[@]}"
+}
+
+hex2mask() {
+    local hex="${1#0x}" mask=()
+    for i in {0..3}; do
+        mask[i]=$((16#${hex:$((i*2)):2}))
+    done
+    echo "${mask[@]}"
+}
+
+# ------------------------------
+# Main
+# ------------------------------
+
+if [[ "$1" =~ / ]]; then
+    IFS='/' read -r ip mask <<< "$1"
+    ip_arr=($(ip2array "$ip"))
+
+    # Detect mask type
+    if [[ "$mask" =~ ^0x ]]; then
+        mask_arr=($(hex2mask "$mask"))
+    elif [[ "$mask" =~ ^[0-9]+$ ]] && (( mask <= 32 )); then
+        mask_arr=($(cidr2mask "$mask"))
+    else
+        mask_arr=($(ip2array "$mask"))
+    fi
+
+else
+    echo "Usage: $0 IP/CIDR or IP/MASK or IP/0xHEX"
+    exit 1
+fi
+
+# Compute network address
+network=($(and_octets ip_arr[@] mask_arr[@]))
+
+# Compute broadcast address
+invert_mask=()
+for i in {0..3}; do
+    invert_mask[i]=$(( 255 - mask_arr[i] ))
+done
+broadcast=($(or_octets network[@] invert_mask[@]))
+
+# Calculate usable host range and total hosts
+network_int=$((network[0]<<24 | network[1]<<16 | network[2]<<8 | network[3]))
+broadcast_int=$((broadcast[0]<<24 | broadcast[1]<<16 | broadcast[2]<<8 | broadcast[3]))
+total_hosts=$((broadcast_int - network_int - 1))
+
+if (( total_hosts > 0 )); then
+    first_host_int=$((network_int + 1))
+    last_host_int=$((broadcast_int - 1))
+    
+    first_host=($(( (first_host_int >> 24) & 255 )) $(( (first_host_int >> 16) & 255 )) $(( (first_host_int >> 8) & 255 )) $(( first_host_int & 255 )))
+    last_host=($(( (last_host_int >> 24) & 255 )) $(( (last_host_int >> 16) & 255 )) $(( (last_host_int >> 8) & 255 )) $(( last_host_int & 255 )))
+else
+    first_host=("${network[@]}")
+    last_host=("${broadcast[@]}")
+fi
+
+# Print results
+echo "Network Address: ${network[0]}.${network[1]}.${network[2]}.${network[3]}"
+echo "Broadcast Address: ${broadcast[0]}.${broadcast[1]}.${broadcast[2]}.${broadcast[3]}"
+echo "Usable Host Range: ${first_host[0]}.${first_host[1]}.${first_host[2]}.${first_host[3]} - ${last_host[0]}.${last_host[1]}.${last_host[2]}.${last_host[3]}"
+echo "Total Hosts: $total_hosts"
+

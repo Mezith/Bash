@@ -1,0 +1,47 @@
+#!/bin/bash
+
+SECONDS=0
+BACKUP_TEMP="/home/user/BackupTempLg/backup.tar.gz"       # Where new backup is written first
+FINAL_BACKUP="/home/user/Backups/backup.tar.gz"          # Where it ends up (external drive)
+LOGFILE="/home/user/BackupTempLg/backup.log"
+
+# Redirect all output to the log
+exec >> "$LOGFILE" 2>&1
+echo "------------------------------------------------------------"
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Backup script started"
+
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Creating backup at $BACKUP_TEMP"
+
+# Create the backup archive on internal drive
+if ! tar -czf "$BACKUP_TEMP" \
+    --exclude="/proc" \
+    --exclude="/sys" \
+    --exclude="/dev" \
+    --exclude="/run" \
+    --exclude="/tmp" \
+    --exclude="/var/tmp" \
+    --exclude="/mnt" \
+    --exclude="/media" \
+    --exclude="/lost+found" \
+    --exclude="/home/user/Backups" \
+    --exclude="/home/user/BackupTempLg" \
+    --one-file-system / ; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - ERROR: Backup failed!"
+    rm -f "$BACKUP_TEMP"
+    exit 1
+fi
+
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Backup created successfully"
+
+# Now move the old backup to a secondary archive if needed (optional)
+if [ -f "$FINAL_BACKUP" ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - Removing old backup"
+    rm -f "$FINAL_BACKUP"
+fi
+
+# Move the new backup to the external drive
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Moving new backup to $FINAL_BACKUP"
+mv "$BACKUP_TEMP" "$FINAL_BACKUP"
+
+duration=$SECONDS
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Backup completed in $((duration / 60)) min $((duration % 60)) sec"
