@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# WEBHOOK_URL="Discord channels webhook link goes here!"
+WEBHOOK_URL="Discord channels webhook link goes here!"
 IMAGE_URL=""
 THUMBNAIL_URL="https://pbs.twimg.com/profile_images/1517537104645001217/cI1wdSJR_400x400.png"
 TITLE="$1"
