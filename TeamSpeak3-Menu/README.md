@@ -1,4 +1,4 @@
-# ⚠️This project is no longer maintained. Feel free use as-is.
+# ⚠️This project is no longer maintained⚠️
 # TS3Menu
 Teamspeak 3 Server Bash script
 
