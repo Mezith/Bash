@@ -1,5 +1,4 @@
-#**** WARNING NOT MAINTAINED ****
-# TS3Menu
+# "TS3Menu **** WARNING NOT MAINTAINED ****"
 Teamspeak 3 Server Bash script
 
   This script creates a terminal menu that can be interacted with for a Linux Teamspeak 3 Server.
