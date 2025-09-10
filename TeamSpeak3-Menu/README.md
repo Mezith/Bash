@@ -1,4 +1,4 @@
-##**** WARNING NOT MAINTAINED ****##
+#**** WARNING NOT MAINTAINED ****
 # TS3Menu
 Teamspeak 3 Server Bash script
 
