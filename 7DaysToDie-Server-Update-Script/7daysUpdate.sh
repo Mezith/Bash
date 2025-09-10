@@ -84,11 +84,11 @@ perform_update_with_warning() {
     /usr/games/steamcmd +runscript /home/user/scripts/7daysscript.txt
 
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting server..."
-    /home/user/scripts/discord_msg.sh "Server Update Complete" "⏳⏳⏳**Starting Server**⏳⏳⏳" 3066993
+    /home/user/scripts/discord_msg.sh "Starting Server" "⏳⏳⏳⏳⏳⏳" 3066993
     sudo systemctl start 7daystodie
 
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Update complete."
-    /home/user/scripts/discord_msg.sh "Server Update Complete" "✅✅✅**Server Started**✅✅✅" 3066993
+    /home/user/scripts/discord_msg.sh "Server Started" "✅✅✅✅✅✅" 3066993
 }
 
 # Function to determine if it's safe to update (i.e., not during Horde Night)
