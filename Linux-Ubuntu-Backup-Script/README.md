@@ -8,7 +8,7 @@ This script creates a full system backup using tar, writes it to a temporary int
 - Safe temporary staging before final transfer
 - Runtime duration tracking
 
-Cleanup of old backups
+## Cleanup of old backups
 
 It’s designed for reliability and simplicity — ideal for scheduled backups via cron or manual runs.
 
