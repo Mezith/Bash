@@ -1,4 +1,4 @@
-### System Backup Script
+# System Backup Script
 An automated Bash script for creating compressed system backups with logging, exclusions, stored to an external and local drive.
 
 ## Overview
